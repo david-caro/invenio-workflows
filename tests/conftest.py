@@ -35,6 +35,7 @@ from flask import Flask
 from flask_celeryext import FlaskCeleryExt
 from flask_cli import FlaskCLI
 from invenio_db import InvenioDB, db
+from invenio_files_rest import InvenioFilesREST
 
 from invenio_workflows import InvenioWorkflows
 
@@ -58,6 +59,7 @@ def app(request):
     FlaskCLI(app)
     FlaskCeleryExt(app)
     InvenioDB(app)
+    InvenioFilesREST(app)
     InvenioWorkflows(app)
 
     with app.app_context():

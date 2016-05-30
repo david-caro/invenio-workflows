@@ -21,12 +21,14 @@
 
 import base64
 import uuid
-from collections import Iterable, namedtuple
+from collections import Iterable, namedtuple, OrderedDict
 from datetime import datetime
 
 from flask import current_app
 from invenio_db import db
-from six import callable, iteritems
+from invenio_files_rest.models import Bucket
+from invenio_records_files.api import FilesIterator
+from six import callable
 from six.moves import cPickle
 from sqlalchemy import desc
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -68,6 +70,21 @@ class CallbackPosType(db.PickleType):
         if not isinstance(value, Iterable):
             raise TypeError("Task counter must be an iterable!")
         return self.type_impl.process_bind_param(value, dialect)  # noqa
+
+
+class WorkflowFilesIterator(FilesIterator):
+    """Iterator for files."""
+
+    def __init__(self, workflow_object, bucket):
+        """Initialize iterator."""
+        self._it = None
+        self.record = workflow_object.data
+        self.model = workflow_object
+        self.bucket = bucket
+        self.record.setdefault('_files', [])
+        self.filesmap = OrderedDict([
+            (f['key'], f) for f in self.record['_files']
+        ])
 
 
 def _decode(data):
@@ -594,5 +611,65 @@ class WorkflowObject(db.Model):
             db.session.add(obj)
         return obj
 
+    def create_bucket(self, location=None, storage_class=None):
+        """Create file bucket for workflow object."""
+        if location is None:
+            location = current_app.config[
+                'WORKFLOWS_DEFAULT_FILE_LOCATION_NAME'
+            ]
+        if storage_class is None:
+            storage_class = current_app.config[
+                'WORKFLOWS_DEFAULT_STORAGE_CLASS'
+            ]
+        bucket = Bucket.create(
+            location=location,
+            storage_class=storage_class
+        )
+        WorkflowsBuckets.create(workflow_object=self, bucket=bucket)
+        return bucket
 
-__all__ = ('Workflow', 'WorkflowObject')
+    @property
+    def files(self):
+        """Get files iterator."""
+        workflows_bucket = WorkflowsBuckets.query.filter_by(
+            workflow_object_id=self.id).first()
+
+        if not workflows_bucket:
+            bucket = self.create_bucket()
+        else:
+            bucket = workflows_bucket.bucket
+
+        return WorkflowFilesIterator(self, bucket=bucket)
+
+
+class WorkflowsBuckets(db.Model):
+    """Relationship between Records and Buckets."""
+
+    __tablename__ = 'workflows_buckets'
+
+    workflow_object_id = db.Column(
+        db.Integer,
+        db.ForeignKey(WorkflowObject.id),
+        primary_key=True,
+        nullable=False,
+    )
+
+    bucket_id = db.Column(
+        UUIDType,
+        db.ForeignKey(Bucket.id),
+        primary_key=True,
+        nullable=False,
+    )
+
+    bucket = db.relationship(Bucket)
+    workflow_object = db.relationship(WorkflowObject)
+
+    @classmethod
+    def create(cls, workflow_object, bucket):
+        """Create a new WorkflowsBuckets and adds it to the session."""
+        rb = cls(workflow_object=workflow_object, bucket=bucket)
+        db.session.add(rb)
+        return rb
+
+
+__all__ = ('Workflow', 'WorkflowObject', 'WorkflowsBuckets')

@@ -48,13 +48,13 @@ extras_require = {
         'Sphinx>=1.3',
     ],
     'postgresql': [
-        'invenio-db[postgresql]>=1.0.0a9',
+        'invenio-db[postgresql,versioning]>=1.0.0a9',
     ],
     'mysql': [
-        'invenio-db[mysql]>=1.0.0a9',
+        'invenio-db[mysql,versioning]>=1.0.0a9',
     ],
     'sqlite': [
-        'invenio-db>=1.0.0a9',
+        'invenio-db[versioning]>=1.0.0a9',
     ],
     'tests': tests_require,
 }
@@ -73,6 +73,9 @@ install_requires = [
     'Flask-CLI>=0.2.1',
     'flask-celeryext>=0.1.0',
     'blinker>=1.4',
+    'invenio-db[versioning]>=1.0.0a9',
+    'invenio-files-rest>=1.0.0a3',
+    'invenio-records-files>=1.0.0a5',
     # FIXME: Enable this when workflow is released
     # 'workflow>=2.0.0',
 ]

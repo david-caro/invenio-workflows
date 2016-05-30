@@ -58,10 +58,16 @@ class InvenioWorkflows(object):
         if app:
             self._state = self.init_app(app, **kwargs)
 
+    def init_config(self, app):
+        """Initialize configuration."""
+        app.config.setdefault("WORKFLOWS_DEFAULT_STORAGE_CLASS", "S")
+        app.config.setdefault("WORKFLOWS_DEFAULT_FILE_LOCATION_NAME", None)
+
     def init_app(self, app,
                  entry_point_group='invenio_workflows.workflows',
                  **kwargs):
         """Flask application initialization."""
+        self.init_config(app)
         state = _WorkflowState(
             app, entry_point_group=entry_point_group, **kwargs
         )

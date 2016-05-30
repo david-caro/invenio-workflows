@@ -40,6 +40,7 @@ import os
 from flask import Flask
 from flask_cli import FlaskCLI
 from invenio_db import InvenioDB
+from invenio_files_rest import InvenioFilesREST
 
 from invenio_workflows import InvenioWorkflows
 
@@ -47,9 +48,12 @@ from invenio_workflows import InvenioWorkflows
 app = Flask(__name__)
 FlaskCLI(app)
 InvenioDB(app)
+InvenioFilesREST(app)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
     'SQLALCHEMY_DATABASE_URI', 'sqlite:///test.db'
 )
+
 InvenioWorkflows(app)
 
 with app.app_context():
