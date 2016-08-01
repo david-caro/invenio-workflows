@@ -18,9 +18,8 @@
 
 """Mediator between API and workers responsible for running the workflows."""
 
-from flask import current_app
+from flask import current_app  # noqa: F401
 from invenio_db import db
-from workflow.errors import WorkflowObjectStatusError
 
 from .engine import WorkflowEngine
 from .models import Workflow, WorkflowObject

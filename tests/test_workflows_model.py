@@ -25,7 +25,7 @@ from uuid import uuid1
 
 from invenio_db import db
 
-from invenio_workflows import Workflow, WorkflowObject, start
+from invenio_workflows import Workflow, WorkflowObject
 
 
 def test_db(app):
