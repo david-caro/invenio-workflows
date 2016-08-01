@@ -39,63 +39,52 @@ services:
   - mysql
   - postgresql
 
-
-env:
-  - REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
-  - REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio"
-  - REQUIREMENTS=lowest SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio"
-  - REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
-  - REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio"
-  - REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio"
-  - REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
-  - REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio"
-  - REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio"
 matrix:
-  - include:
-    - env: TOXENV=docs
-    - env: TOXENV=doctests
-    - env: TOXENV=pep8
-    - env: TOXENV=packaging
+  include:
+    - python: 2.7
+      env: TOXENV=docs
+    - python: 2.7
+      env: TOXENV=doctests
+    - python: 2.7
+      env: TOXENV=pep8
+    - python: 2.7
+      env: TOXENV=packaging
     - python: 2.7
       env: TOXENV=py27
     - python: 2.7
       env: TOXENV=py27mysql
     - python: 2.7
-      env: TOXENV=py27postgresql
+      env: TOXENV=py27postgres
     - python: 3.3
       env: TOXENV=py33
     - python: 3.3
       env: TOXENV=py33mysql
     - python: 3.3
-      env: TOXENV=py33postgresql
+      env: TOXENV=py33postgres
     - python: 3.4
       env: TOXENV=py34
     - python: 3.4
       env: TOXENV=py34mysql
     - python: 3.4
-      env: TOXENV=py34postgresql
+      env: TOXENV=py34postgres
     - python: 3.5
       env: TOXENV=py35
     - python: 3.5
       env: TOXENV=py35mysql
     - python: 3.5
-      env: TOXENV=py35postgresql
+      env: TOXENV=py35postgres
 
 before_install:
   - "travis_retry pip install --upgrade pip setuptools tox"
-  - "travis_retry pip install twine wheel coveralls requirements-builder pymysql psycopg2"
-  - "requirements-builder -e all --level=min setup.py > .travis-lowest-requirements.txt"
-  - "requirements-builder -e all --level=pypi setup.py > .travis-release-requirements.txt"
-  - "requirements-builder -e all --level=dev --req requirements-devel.txt setup.py > .travis-devel-requirements.txt"
+# FIXME: span also all the requirement levels in the matrix
+#  - "requirements-builder -e all --level=min setup.py > .travis-lowest-requirements.txt"
+#  - "requirements-builder -e all --level=pypi setup.py > .travis-release-requirements.txt"
+#  - "requirements-builder -e all --level=dev --req requirements-devel.txt setup.py > .travis-devel-requirements.txt"
   - "mysql -e 'CREATE DATABASE IF NOT EXISTS invenio;' -uroot"
   - "psql -c 'CREATE DATABASE invenio;' -U postgres"
 
-install:
-  - "travis_retry pip install -r .travis-${REQUIREMENTS}-requirements.txt"
-  - "travis_retry pip install -e .[all]"
-
 script:
-  - tox
+  - tox -e $TOXENV
 
 after_success:
   - coveralls
