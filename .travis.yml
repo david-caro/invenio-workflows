@@ -50,18 +50,40 @@ env:
   - REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="sqlite:///test.db"
   - REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio"
   - REQUIREMENTS=devel SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio"
-
-python:
-  - "2.7"
-  - "3.3"
-  - "3.4"
-  - "3.5"
+matrix:
+  - include:
+    - env: TOXENV=docs
+    - env: TOXENV=doctests
+    - env: TOXENV=pep8
+    - env: TOXENV=packaging
+    - python: 2.7
+      env: TOXENV=py27
+    - python: 2.7
+      env: TOXENV=py27mysql
+    - python: 2.7
+      env: TOXENV=py27postgresql
+    - python: 3.3
+      env: TOXENV=py33
+    - python: 3.3
+      env: TOXENV=py33mysql
+    - python: 3.3
+      env: TOXENV=py33postgresql
+    - python: 3.4
+      env: TOXENV=py34
+    - python: 3.4
+      env: TOXENV=py34mysql
+    - python: 3.4
+      env: TOXENV=py34postgresql
+    - python: 3.5
+      env: TOXENV=py35
+    - python: 3.5
+      env: TOXENV=py35mysql
+    - python: 3.5
+      env: TOXENV=py35postgresql
 
 before_install:
-  - "travis_retry pip install --upgrade pip setuptools py"
+  - "travis_retry pip install --upgrade pip setuptools tox"
   - "travis_retry pip install twine wheel coveralls requirements-builder pymysql psycopg2"
-  # FIXME: temporary until updated workflow is merged
-  - "travis_retry pip install git+https://github.com/inspirehep/workflow.git#egg=workflow==2.0.0.dev20160223"
   - "requirements-builder -e all --level=min setup.py > .travis-lowest-requirements.txt"
   - "requirements-builder -e all --level=pypi setup.py > .travis-release-requirements.txt"
   - "requirements-builder -e all --level=dev --req requirements-devel.txt setup.py > .travis-devel-requirements.txt"
@@ -73,7 +95,7 @@ install:
   - "travis_retry pip install -e .[all]"
 
 script:
-  - "./run-tests.sh"
+  - tox
 
 after_success:
   - coveralls
