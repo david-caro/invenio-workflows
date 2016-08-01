@@ -94,6 +94,7 @@ before_install:
 #  - "requirements-builder -e all --level=pypi setup.py > .travis-release-requirements.txt"
 #  - "requirements-builder -e all --level=dev --req requirements-devel.txt setup.py > .travis-devel-requirements.txt"
   - "mysql -e 'CREATE DATABASE IF NOT EXISTS workflows;' -uroot"
+  - "mysql -e 'status' -uroot"
   - "psql -c 'CREATE DATABASE workflows;' -U postgres"
 
 script:
