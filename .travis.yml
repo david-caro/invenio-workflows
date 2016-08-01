@@ -42,13 +42,7 @@ services:
 matrix:
   include:
     - python: 2.7
-      env: TOXENV=docs
-    - python: 2.7
-      env: TOXENV=doctests
-    - python: 2.7
-      env: TOXENV=pep8
-    - python: 2.7
-      env: TOXENV=packaging
+      env: TOXENV=docs,doctests,pep8,packaging
     - python: 2.7
       env: TOXENV=py27
     - python: 2.7
