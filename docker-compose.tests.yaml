@@ -44,7 +44,7 @@ services:
     volumes:
       - .:/code
     environment:
-      - TOXENV=pep8,docs,doctests,packaging,py27
+      - TOXENV=pep8,docs,doctests,docstyle,packaging,py27
   test-py27postgres:
     extends:
       service: test-py27
